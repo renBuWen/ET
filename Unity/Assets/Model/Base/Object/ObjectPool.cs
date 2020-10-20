@@ -1,33 +1,45 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using UnityEngine;
 
-namespace ETModel
+namespace ET
 {
-	public class ComponentQueue: Component
+	public class ComponentQueue: Object
 	{
 		public string TypeName { get; }
 		
-		private readonly Queue<Component> queue = new Queue<Component>();
+		private readonly Queue<Object> queue = new Queue<Object>();
 
 		public ComponentQueue(string typeName)
 		{
 			this.TypeName = typeName;
 		}
 
-		public void Enqueue(Component component)
+		public void Enqueue(Object entity)
 		{
-			component.Parent = this;
-			this.queue.Enqueue(component);
+			this.queue.Enqueue(entity);
 		}
 
-		public Component Dequeue()
+		public Object Dequeue()
 		{
 			return this.queue.Dequeue();
 		}
 
-		public Component Peek()
+		public Object Peek()
 		{
 			return this.queue.Peek();
+		}
+
+		public Queue<Object> Queue
+		{
+			get
+			{
+				return this.queue;
+			}
 		}
 
 		public int Count
@@ -40,75 +52,92 @@ namespace ETModel
 
 		public override void Dispose()
 		{
-			if (this.IsDisposed)
-			{
-				return;
-			}
-			base.Dispose();
-
 			while (this.queue.Count > 0)
 			{
-				Component component = this.queue.Dequeue();
-				component.IsFromPool = false;
+				Object component = this.queue.Dequeue();
 				component.Dispose();
 			}
 		}
 	}
 	
-    public class ObjectPool: Component
+    public class ObjectPool: Object
     {
-	    public string Name { get; set; }
-	    
-        private readonly Dictionary<Type, ComponentQueue> dictionary = new Dictionary<Type, ComponentQueue>();
+	    private static ObjectPool instance;
 
-        public Component Fetch(Type type)
+	    public static ObjectPool Instance
+	    {
+		    get
+		    {
+			    if (instance == null)
+			    {
+				    instance = new ObjectPool();
+			    }
+
+			    return instance;
+		    }
+	    }
+	    
+        public readonly Dictionary<Type, ComponentQueue> dictionary = new Dictionary<Type, ComponentQueue>();
+
+        public Object Fetch(Type type)
         {
-	        Component obj;
-            if (!this.dictionary.TryGetValue(type, out ComponentQueue queue))
+	        Object obj;
+	        if (!this.dictionary.TryGetValue(type, out ComponentQueue queue))
             {
-	            obj = (Component)Activator.CreateInstance(type);
+	            obj = (Object)Activator.CreateInstance(type);
             }
 	        else if (queue.Count == 0)
             {
-	            obj = (Component)Activator.CreateInstance(type);
+	            obj = (Object)Activator.CreateInstance(type);
             }
             else
             {
 	            obj = queue.Dequeue();
             }
-	        
-	        obj.IsFromPool = true;
             return obj;
         }
 
-        public T Fetch<T>() where T: Component
+        public T Fetch<T>() where T: Object
 		{
             T t = (T) this.Fetch(typeof(T));
 			return t;
 		}
         
-        public void Recycle(Component obj)
+        public void Recycle(Object obj)
         {
-	        obj.Parent = this;
             Type type = obj.GetType();
 	        ComponentQueue queue;
             if (!this.dictionary.TryGetValue(type, out queue))
             {
                 queue = new ComponentQueue(type.Name);
-	            queue.Parent = this;
+	            
+#if UNITY_EDITOR
+	            if (queue.ViewGO != null)
+	            {
+		            queue.ViewGO.transform.SetParent(this.ViewGO.transform);
+		            queue.ViewGO.name = $"{type.Name}s";
+	            }
+#endif
 				this.dictionary.Add(type, queue);
             }
+            
+#if UNITY_EDITOR
+	        if (obj.ViewGO != null)
+	        {
+		        obj.ViewGO.transform.SetParent(queue.ViewGO.transform);
+	        }
+#endif
             queue.Enqueue(obj);
         }
 
-	    public void Clear()
+	    public override void Dispose()
 	    {
 		    foreach (var kv in this.dictionary)
 		    {
-			    kv.Value.IsFromPool = false;
 			    kv.Value.Dispose();
 		    }
 		    this.dictionary.Clear();
+		    instance = null;
 	    }
     }
 }

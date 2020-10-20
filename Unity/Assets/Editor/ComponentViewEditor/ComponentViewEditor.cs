@@ -1,13 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using ETModel;
-using ILRuntime.Runtime.Intepreter;
+
 using UnityEditor;
 using UnityEngine;
-using Component = ETModel.Component;
 
-namespace ETEditor
+namespace ET
 {
     [CustomEditor(typeof (ComponentView))]
     public class ComponentViewEditor: Editor
@@ -16,10 +14,6 @@ namespace ETEditor
         {
             ComponentView componentView = (ComponentView) target;
             object component = componentView.Component;
-            if (component.GetType() == typeof (ILTypeInstance))
-            {
-                return;
-            }
             ComponentViewHelper.Draw(component);
         }
     }
@@ -74,7 +68,12 @@ namespace ETEditor
                             continue;
                         }
 
-                        value = typeDrawer.DrawAndGetNewValue(type, fieldInfo.Name, value, null);
+                        string fieldName = fieldInfo.Name;
+                        if (fieldName.Length > 17 && fieldName.Contains("k__BackingField"))
+                        {
+                            fieldName = fieldName.Substring(1, fieldName.Length - 17);
+                        }
+                        value = typeDrawer.DrawAndGetNewValue(type, fieldName, value, null);
                         fieldInfo.SetValue(obj, value);
                         break;
                     }

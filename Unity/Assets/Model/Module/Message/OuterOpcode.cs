@@ -1,9 +1,6 @@
-using ETModel;
-namespace ETModel
-{
-	[Message(OuterOpcode.Actor_Test)]
-	public partial class Actor_Test : IActorMessage {}
 
+namespace ET
+{
 	[Message(OuterOpcode.C2M_TestRequest)]
 	public partial class C2M_TestRequest : IActorLocationRequest {}
 
@@ -51,26 +48,65 @@ namespace ETModel
 	[Message(OuterOpcode.M2C_Reload)]
 	public partial class M2C_Reload : IResponse {}
 
+	[Message(OuterOpcode.C2R_Login)]
+	public partial class C2R_Login : IRequest {}
+
+	[Message(OuterOpcode.R2C_Login)]
+	public partial class R2C_Login : IResponse {}
+
+	[Message(OuterOpcode.C2G_LoginGate)]
+	public partial class C2G_LoginGate : IRequest {}
+
+	[Message(OuterOpcode.G2C_LoginGate)]
+	public partial class G2C_LoginGate : IResponse {}
+
+	[Message(OuterOpcode.G2C_TestHotfixMessage)]
+	public partial class G2C_TestHotfixMessage : IMessage {}
+
+	[Message(OuterOpcode.C2M_TestActorRequest)]
+	public partial class C2M_TestActorRequest : IActorLocationRequest {}
+
+	[Message(OuterOpcode.M2C_TestActorResponse)]
+	public partial class M2C_TestActorResponse : IActorLocationResponse {}
+
+	[Message(OuterOpcode.PlayerInfo)]
+	public partial class PlayerInfo : IMessage {}
+
+	[Message(OuterOpcode.C2G_PlayerInfo)]
+	public partial class C2G_PlayerInfo : IRequest {}
+
+	[Message(OuterOpcode.G2C_PlayerInfo)]
+	public partial class G2C_PlayerInfo : IResponse {}
+
 }
-namespace ETModel
+namespace ET
 {
 	public static partial class OuterOpcode
 	{
-		 public const ushort Actor_Test = 101;
-		 public const ushort C2M_TestRequest = 102;
-		 public const ushort M2C_TestResponse = 103;
-		 public const ushort Actor_TransferRequest = 104;
-		 public const ushort Actor_TransferResponse = 105;
-		 public const ushort C2G_EnterMap = 106;
-		 public const ushort G2C_EnterMap = 107;
-		 public const ushort UnitInfo = 108;
-		 public const ushort M2C_CreateUnits = 109;
-		 public const ushort Frame_ClickMap = 110;
-		 public const ushort M2C_PathfindingResult = 111;
-		 public const ushort C2R_Ping = 112;
-		 public const ushort R2C_Ping = 113;
-		 public const ushort G2C_Test = 114;
-		 public const ushort C2M_Reload = 115;
-		 public const ushort M2C_Reload = 116;
+		 public const ushort C2M_TestRequest = 101;
+		 public const ushort M2C_TestResponse = 102;
+		 public const ushort Actor_TransferRequest = 103;
+		 public const ushort Actor_TransferResponse = 104;
+		 public const ushort C2G_EnterMap = 105;
+		 public const ushort G2C_EnterMap = 106;
+		 public const ushort UnitInfo = 107;
+		 public const ushort M2C_CreateUnits = 108;
+		 public const ushort Frame_ClickMap = 109;
+		 public const ushort M2C_PathfindingResult = 110;
+		 public const ushort C2R_Ping = 111;
+		 public const ushort R2C_Ping = 112;
+		 public const ushort G2C_Test = 113;
+		 public const ushort C2M_Reload = 114;
+		 public const ushort M2C_Reload = 115;
+		 public const ushort C2R_Login = 116;
+		 public const ushort R2C_Login = 117;
+		 public const ushort C2G_LoginGate = 118;
+		 public const ushort G2C_LoginGate = 119;
+		 public const ushort G2C_TestHotfixMessage = 120;
+		 public const ushort C2M_TestActorRequest = 121;
+		 public const ushort M2C_TestActorResponse = 122;
+		 public const ushort PlayerInfo = 123;
+		 public const ushort C2G_PlayerInfo = 124;
+		 public const ushort G2C_PlayerInfo = 125;
 	}
 }

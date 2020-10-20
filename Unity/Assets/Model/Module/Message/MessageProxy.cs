@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ETModel
+namespace ET
 {
 	public class MessageProxy: IMHandler
 	{
@@ -13,7 +13,7 @@ namespace ETModel
 			this.action = action;
 		}
 		
-		public void Handle(Session session, object message)
+		public async ETVoid Handle(Session session, object message)
 		{
 			this.action.Invoke(session, message);
 		}

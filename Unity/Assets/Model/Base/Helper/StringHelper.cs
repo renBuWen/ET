@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 
-namespace ETModel
+namespace ET
 {
 	public static class StringHelper
 	{
@@ -57,6 +57,15 @@ namespace ETModel
 				sb.Append(",");
 			}
 			return sb.ToString();
+		}
+		
+		public static string MessageToStr(object message)
+		{
+#if SERVER
+			return MongoHelper.ToJson(message);
+#else
+			return Dumper.DumpAsString(message);
+#endif
 		}
 	}
 }

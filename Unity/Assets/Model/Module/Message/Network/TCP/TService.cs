@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using Microsoft.IO;
 
-namespace ETModel
+namespace ET
 {
 	public sealed class TService : AService
 	{
@@ -16,16 +16,13 @@ namespace ETModel
 		
 		public RecyclableMemoryStreamManager MemoryStreamManager = new RecyclableMemoryStreamManager();
 		
-		public HashSet<long> needStartSendChannel = new HashSet<long>();
-		
-		public int PacketSizeLength { get; }
+		public List<long> needStartSendChannel = new List<long>();
 		
 		/// <summary>
 		/// 即可做client也可做server
 		/// </summary>
-		public TService(int packetSizeLength, IPEndPoint ipEndPoint, Action<AChannel> acceptCallback)
+		public TService(IPEndPoint ipEndPoint, Action<AChannel> acceptCallback)
 		{
-			this.PacketSizeLength = packetSizeLength;
 			this.AcceptCallback += acceptCallback;
 			
 			this.acceptor = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -38,9 +35,8 @@ namespace ETModel
 			this.AcceptAsync();
 		}
 
-		public TService(int packetSizeLength)
+		public TService()
 		{
-			this.PacketSizeLength = packetSizeLength;
 		}
 		
 		public override void Dispose()
@@ -95,11 +91,13 @@ namespace ETModel
 			if (e.SocketError != SocketError.Success)
 			{
 				Log.Error($"accept error {e.SocketError}");
+				this.AcceptAsync();
 				return;
 			}
 			TChannel channel = new TChannel(e.AcceptSocket, this);
 			this.idChannels[channel.Id] = channel;
-
+			channel.Parent = this;
+			
 			try
 			{
 				this.OnAccept(channel);
@@ -128,7 +126,7 @@ namespace ETModel
 		{
 			TChannel channel = new TChannel(ipEndPoint, this);
 			this.idChannels[channel.Id] = channel;
-
+			channel.Parent = this;
 			return channel;
 		}
 

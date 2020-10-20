@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ETModel
+namespace ET
 {
-	[ObjectSystem]
+	
 	public class MessageDispatcherComponentAwakeSystem : AwakeSystem<MessageDispatcherComponent>
 	{
 		public override void Awake(MessageDispatcherComponent t)
@@ -12,7 +12,7 @@ namespace ETModel
 		}
 	}
 
-	[ObjectSystem]
+	
 	public class MessageDispatcherComponentLoadSystem : LoadSystem<MessageDispatcherComponent>
 	{
 		public override void Load(MessageDispatcherComponent self)
@@ -24,7 +24,7 @@ namespace ETModel
 	/// <summary>
 	/// 消息分发组件
 	/// </summary>
-	public class MessageDispatcherComponent : Component
+	public class MessageDispatcherComponent : Entity
 	{
 		private readonly Dictionary<ushort, List<IMHandler>> handlers = new Dictionary<ushort, List<IMHandler>>();
 
@@ -37,7 +37,7 @@ namespace ETModel
 		{
 			this.handlers.Clear();
 
-			List<Type> types = Game.EventSystem.GetTypes(typeof(MessageHandlerAttribute));
+			HashSet<Type> types = Game.EventSystem.GetTypes(typeof(MessageHandlerAttribute));
 
 			foreach (Type type in types)
 			{
@@ -55,7 +55,7 @@ namespace ETModel
 				}
 
 				Type messageType = iMHandler.GetMessageType();
-				ushort opcode = this.Entity.GetComponent<OpcodeTypeComponent>().GetOpcode(messageType);
+				ushort opcode = this.Parent.GetComponent<OpcodeTypeComponent>().GetOpcode(messageType);
 				if (opcode == 0)
 				{
 					Log.Error($"消息opcode为0: {messageType.Name}");
@@ -87,7 +87,7 @@ namespace ETModel
 			{
 				try
 				{
-					ev.Handle(session, messageInfo.Message);
+					ev.Handle(session, messageInfo.Message).Coroutine();
 				}
 				catch (Exception e)
 				{

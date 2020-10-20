@@ -1,10 +1,10 @@
 ﻿using System;
 
-namespace ETModel
+namespace ET
 {
 	public abstract class AMActorHandler<E, Message>: IMActorHandler where E: Entity where Message : class, IActorMessage
 	{
-		protected abstract void Run(E entity, Message message);
+		protected abstract ETTask Run(E entity, Message message);
 
 		public async ETTask Handle(Session session, Entity entity, object actorMessage)
 		{
@@ -21,9 +21,14 @@ namespace ETModel
 				return;
 			}
 
-			this.Run(e, msg);
-
-			await ETTask.CompletedTask;
+			try
+			{
+				await this.Run(e, msg);
+			}
+			catch (Exception exception)
+			{
+				Log.Error(exception);
+			}
 		}
 
 		public Type GetMessageType()

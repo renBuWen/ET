@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net;
 
-namespace ETModel
+namespace ET
 {
 	public enum NetworkProtocol
 	{
@@ -10,7 +10,7 @@ namespace ETModel
 		WebSocket,
 	}
 
-	public abstract class AService: Component
+	public abstract class AService: Entity
 	{
 		public abstract AChannel GetChannel(long id);
 

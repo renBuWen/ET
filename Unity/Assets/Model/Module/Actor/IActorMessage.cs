@@ -1,4 +1,4 @@
-﻿namespace ETModel
+﻿namespace ET
 {
 	// 不需要返回消息
 	public interface IActorMessage: IMessage
@@ -6,9 +6,8 @@
 		long ActorId { get; set; }
 	}
 
-	public interface IActorRequest : IRequest
+	public interface IActorRequest : IActorMessage, IRequest
 	{
-		long ActorId { get; set; }
 	}
 
 	public interface IActorResponse : IResponse
